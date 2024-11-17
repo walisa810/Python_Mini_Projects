@@ -4,7 +4,7 @@ import re
 # this is sothat we can just just say "create a board",or
 # "dig here",or "render this game" for this object"
 class Board:
-    def __init(self, dim_size, num_bombs):
+    def __init__(self, dim_size, num_bombs):
         # let's keep track of these parameters. they'll be helpful later
         self.dim_size = dim_size
         self.num_bombs = num_bombs
@@ -40,6 +40,7 @@ class Board:
                 continue
             board[row][col] = '*' # plant the bomb
             bomb_planted += 1
+        return board
    
     def assign_values_to_board(self):
         # now let's assign (0-8) values for empty cells which represents
@@ -47,9 +48,9 @@ class Board:
         # and it'll save us some effort checking what's around the board
         # later on.
 
-        for r in range(self.dim_size):
-            for c in range(self.dim_size):
-                if self.board[r][c] != '*':
+        for r in range(0,self.dim_size):
+            for c in range(0,self.dim_size):
+                if self.board[r][c] == None or self.board[r][c] == ' ':
                     count = 0
                     if r > 0 and c > 0 and self.board[r-1][c-1] =='*':
                         count += 1
@@ -63,9 +64,9 @@ class Board:
                         count += 1
                     if r < self.dim_size-1 and c < self.dim_size-1 and self.board[r+1][c+1] =='*':
                         count += 1
-                    if c < self.dim_size-1 and self.board[r][c+1] =='*':
+                    if c < self.dim_size-1 and self.board[r][c+1] == '*':
                         count += 1
-                    if c > 0 and self.board[r][c-1] =='*':
+                    if c > 0 and self.board[r][c-1] == '*':
                         count += 1
                     self.board[r][c] = count
                     
@@ -91,8 +92,9 @@ class Board:
                 if (r,c) in self.dug:
                     continue
                 self.dig(r, c) 
+        return True
 
-    def __str__(self):
+    def printg(self):
         # this is a magic function where if you call print on this object,
         # it'll print out what this function returns!
         # return a string that shows the board to the player
@@ -107,8 +109,8 @@ class Board:
         for row in range(self.dim_size):
             x = []
             for col in range(self.dim_size):
-                x += visible_board[row,col]
-            print('| '+' | '.join(row)+' |')
+                x += visible_board[row][col]
+            print('| '+' | '.join(x)+' |')
         
 # play the game
 def play( dim_size = 10, num_bombs = 10):
@@ -122,9 +124,9 @@ def play( dim_size = 10, num_bombs = 10):
     safe = True
 
     while len(board.dug) < dim_size ** 2 - num_bombs:
-        print(board)
+        board.printg()
         user_input = re.split(',(\\s)*',input("Where would you like to dig? Input as row,col: "))
-        row, col = int(user_input[0], user_input[-1])
+        row, col = int(user_input[0]), int(user_input[-1])
         if row < 0 or row >= dim_size or col < 0 or col >= dim_size :
             print("Invalid input. Try Again")
             continue
@@ -137,8 +139,8 @@ def play( dim_size = 10, num_bombs = 10):
         print("Congratulations! You won")
     else:
         print("Sorry!! GAME OVER")
-        board_d = [(r,c) for r in range(dim_size) for c in range(dim_size)]
-        print(board_d)
+        board.dug = [(r,c) for r in range(dim_size) for c in range(dim_size)]
+        board.printg()
 
 if __name__ == "__main__":
     play()
